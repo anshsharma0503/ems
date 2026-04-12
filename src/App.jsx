@@ -2,14 +2,13 @@ import React, { useContext , useEffect , useState} from 'react'
 import Login from './components/auth/login'
 import EmployeeDashboard from './components/Dashboard/EmployeeDashboard'
 import AdminDashboard from './components/Dashboard/AdminDashboard'
-import { setLocalStorage, getLocalStorage } from './utils/localStorage'
 import { AuthContext } from './context/AuthProvider'
 
 
 const App = () => {       
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
+  const [loggedInUserData, setLoggedInUserData] = useState(null)
   const authData = useContext(AuthContext);
-  console.log(authData);
 
   useEffect(()=>{
     const loggedInUser = localStorage.getItem('loggedInUser')
@@ -24,22 +23,27 @@ const App = () => {
   
 
   const handleLogin = (email, password) => {
-    if(email == 'admin@me.com' && password == '123'){
-      setUser({email, role: 'admin'});
-      localStorage.setItem('loggedInUser', JSON.stringify({email, role: 'admin'}));
-    }else if(authData && authData.employees.find((e)=> e.email == email && e.password == password )){
-      setUser({email, role: 'employee'});
-      localStorage.setItem('loggedInUser', JSON.stringify({email, role: 'employee'}));
-    }else{
-      alert("Invalid credentials");  
+    if (email == 'admin@me.com' && password == '123') {
+      setUser('admin')
+      localStorage.setItem('loggedInUser', JSON.stringify({ role: 'admin' }))
+    } else if (authData && authData.employees) {
+      const employee = authData.employees.find((e) => email == e.email && e.password == password)
+      if (employee) {
+        setUser('employee')
+        setLoggedInUserData(employee)
+        localStorage.setItem('loggedInUser', JSON.stringify({ role: 'employee', data: employee }))
+      } else {
+        alert("Invalid Credentials")
+      }
+    } else {
+      alert("Invalid Credentials")
     }
   }
 
-  
-
   return (
     <>
-     {user == null ? <Login handleLogin={handleLogin} /> : user.role == 'admin' ? <AdminDashboard /> : <EmployeeDashboard />}
+      {!user ? <Login handleLogin={handleLogin} /> : ''}
+      {user == 'admin' ? <AdminDashboard changeUser={setUser} /> : (user == 'employee' ? <EmployeeDashboard changeUser={setUser} data={loggedInUserData} /> : null) }
     </>
   )
 }
