@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
 
 const AllTask = () => {
-    const authData = useContext(AuthContext);
+    const [userData, setUserData] = useContext(AuthContext);
 
     return (
         <div className='bg-[#1c1c1c] p-6 rounded-xl mt-6 shadow-lg border border-gray-800'>
@@ -16,7 +16,7 @@ const AllTask = () => {
             </div>
 
             <div id="tasklist" className='h-[250px] overflow-auto flex flex-col gap-3'>
-                {authData?.employees?.map((elem, idx) => {
+                {userData?.employees?.map((elem, idx) => {
                     const borderColors = ['border-emerald-500', 'border-amber-500', 'border-red-500', 'border-blue-500'];
                     const borderColor = borderColors[idx % borderColors.length];
                     
