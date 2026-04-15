@@ -1,6 +1,29 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { AuthContext } from '../../context/AuthProvider'
 
-const NewTask = ({data}) => {
+const NewTask = ({data, firstName}) => {
+
+    const [userData, setUserData] = useContext(AuthContext);
+
+    const handleAcceptTask = () => {
+        const employeesData = [...userData.employees];
+        const employeeIndex = employeesData.findIndex(e => e.firstName === firstName);
+        if(employeeIndex === -1) return;
+        
+        const employee = employeesData[employeeIndex];
+        const taskIndex = employee.tasks.findIndex(t => t.taskTitle === data.taskTitle && t.taskDate === data.taskDate);
+        if(taskIndex === -1) return;
+        
+        employee.tasks[taskIndex].newTask = false;
+        employee.tasks[taskIndex].active = true;
+        
+        employee.taskCounts.newTask = employee.taskCounts.newTask - 1;
+        employee.taskCounts.active = employee.taskCounts.active + 1;
+
+        setUserData({...userData, employees: employeesData});
+        localStorage.setItem('employees', JSON.stringify(employeesData));
+    }
+
   return (
     <div className='flex-shrink-0 h-full w-[300px] p-5 bg-emerald-400 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between'>
         <div>
@@ -14,7 +37,7 @@ const NewTask = ({data}) => {
             </p>
         </div>
         <div className='flex justify-between mt-6 gap-2'>
-            <button className='w-full bg-green-500 hover:bg-green-600 text-white text-xs py-2 px-2 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-emerald-400'>
+            <button onClick={handleAcceptTask} className='w-full bg-green-500 hover:bg-green-600 text-white text-xs py-2 px-2 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-emerald-400'>
                 Accept Task
             </button>
         </div>
